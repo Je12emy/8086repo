@@ -2,7 +2,7 @@
 .stack 100h
 .data
     mensaje1 db "Preciona una tecla:$"
-    pregunta db "Cuantas veces desea imprimir esa tecla?:"
+    pregunta db "Cuantas veces desea imprimir esa tecla?:$"
     tecla db "$"
     numero db "$"
     espacio db 0AH,0DH,'$'
@@ -24,6 +24,7 @@
     call readline()
     
     mov numero,AL
+    sub numero,30H           ;Quito el ascii
     call clear()
     
 
