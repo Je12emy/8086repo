@@ -27,54 +27,52 @@
     sub numero,30H           ;Quito el ascii
     call clear()
     
-
-    
     call imprimir_n_cantidad()
     
-;    nothing():
-;    call enter()
-
     halt:
     mov ah,4ch
     int 21h
     
-   
-   
 ;******** METODOS ********
 
-println() proc  ;Metodo generico para imprimir      
+println() proc              ;Metodo generico para imprimir      
     mov ah,09h
     int 21h
     ret
 endp
 
-readline() proc ;NOTA: Este metodo guarda la entrada por teclado en AL.
+printtecla() proc           ;Metodo para imprimir la tecla. 
+    mov ah,02h              ;El servicio 02h imprime el contenido en DL, eso lo hace mas optimo para este caso.
+    int 21h
+    ret
+endp
+
+readline() proc             ;NOTA: Este metodo guarda la entrada por teclado en AL.
     mov ah,01h
     int 21h
     ret        
 endp
 
-enter() proc    ;Metodo generico para crear un enter.
+enter() proc                ;Metodo generico para crear un enter.
     lea dx,espacio
     mov ah,09h
     int 21h
     ret
 endp
 
-clear() proc    ;Metodo generico para limpiar la pantalla
+clear() proc                ;Metodo generico para limpiar la pantalla
     mov ah,00h
     mov al,03h
     int 10h
     ret
 endp
 
-imprimir_n_cantidad() proc
-    lea dx,tecla   
-    call println()
-    
+imprimir_n_cantidad() proc  ;Metodo para imprimir la tecla n cantidad de veces.
+    mov  dl,tecla           ;Mueve tecla a DL para prepararla para printtecla().
+    call printtecla()
     dec numero
     JNZ imprimir_n_cantidad()
-   ; call nothing()
-    ret         ;Se encicla por que cuando retorna vuelve al punto donde lo llamaron.
+    ret        
 endp
+
 end
