@@ -1,0 +1,24 @@
+;*** METODOS PARA MACROS BASICOS ***
+;*** IMPORTANTE, GUARDE ESTE ARCHIVO EN LA RUTA: C:\emu8086\inc O no sera encontrado por el emulador.
+;***** MACROS *****     ;Se define un macro con:
+println() macro mensaje ;<Nombre> macro (parametros)
+    lea dx,mensaje      ;<CODIGO>
+    mov ah,09h          ;<CODIGO>
+    int 21h             ;<CODIGO>
+endm                    ;endM
+
+readline() macro  
+ mov ah,01h
+ int 21h    
+endm
+clear() macro  
+    mov ah,00h
+    mov al,03h
+    int 10h
+endm
+goTo() macro x,y
+   mov dh,x
+   mov dl,y
+   mov ah,02h
+   int 21h 
+endm
