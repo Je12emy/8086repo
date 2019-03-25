@@ -6,12 +6,16 @@
 .data
     mensaje1 db "Preciona una tecla:$"
     pregunta db "Cuantas veces desea imprimir esa tecla?:$"
-    pregunta2 db "En cuantas filas desea imprimir esa tecla?:$"
+    pregunta2 db "En cuantas filas desea imprimir esa tecla?:$" 
+    aviso db "Ingreso 0, terminando el programa...$"
     tecla db "$"
     numero db "$"
     num_filas db "$"
     auxiliar db "$"
     espacio db 0AH,0DH,'$'
+    
+    coordenada_x db "$"
+    coordenada_y db "$"
     
 .code
     inicio:
@@ -30,6 +34,9 @@
     call readline()
     
     mov numero,AL
+    
+    call compara()
+    
     mov auxiliar, AL
     
     sub numero,30H           ;Quito el ascii
@@ -110,5 +117,28 @@ imprimir_n_cantidad() proc ;Metodo para imprimir la tecla n cantidad de veces.
     JNZ imprimir_n_cantidad()
     ret        
 endp
+compara() proc
+    cmp numero, 30h         ;Compara numero con 30h(el hex para el numero 0).
+    je igual_cero()         ;Si es verdadero(numero==0)
+    ret                     ;Si no es igual a 0, vuelve a donde lo llamaron y continua el programa.
+endp
+igual_cero() proc           ;Metodo para terminar el programa
+    call clear()
+    call centrar()
+    lea dx, aviso
+    call println()
+    jmp halt                ;Salta a halt para parar la ejecucion
+endp
 
+centrar() proc              ;Metodo para posicionar el cursor en (x,y) posicion.
+    mov coordenada_x,15h
+    mov coordenada_y, 25h
+    
+    mov ah,02h
+    mov dh, coordenada_x
+    mov dl, coordenada_y
+    int 10h
+    
+    ret
+endp
 end
