@@ -59,7 +59,9 @@
     
     call readkey()
     
-    ;*** REVISAR LAS NOTAS DE LA CASE Y EL DEBUGGER PARA REFERENCIAS ***    
+    ;*** REVISAR LAS NOTAS DE LA CASE Y EL DEBUGGER PARA REFERENCIAS ***
+    ;Link: https://uhispano-my.sharepoint.com/:o:/g/personal/jeremy_zelaya_uhispano_ac_cr/EkBBSdqcY2NPol1iWTXnXosBImLRqw6bp-EDCXonp56ZOQ?e=WtdPCz
+    ;Clase: 09
     
     mov al,[numero+4]
     mov ah,[numero+5]   ;Cargar ambos numeros
