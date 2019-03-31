@@ -58,6 +58,35 @@
     call getchr()
     
     call readkey()
+    
+    ;*** REVISAR LAS NOTAS DE LA CASE Y EL DEBUGGER PARA REFERENCIAS ***    
+    
+    mov al,[numero+4]
+    mov ah,[numero+5]   ;Cargar ambos numeros
+    
+    IMUL ah             ;Multiplicacion con numeros negativos, SI toma en cuenta el signo introducido
+    
+    ;Queda FFFA en AX, el cual es el resultado de multiplicar -1*6
+    ;En el futuro implementare una funcion para convertir de hex negativo a decimal pero por el
+    ;momento solo imprimo...
+    
+    mov caracter1,ah
+    mov caracter2,al    ;Guardado 
+    
+    xor ax,ax           ;Limpiar a AX
+    
+    mov ah,caracter2
+    AAM
+    
+    lea dx,mensaje
+    call println()
+    
+    mov dl,caracter1
+    call getchr()
+    mov dl,caracter2
+    call getchr()
+    
+    call readkey()
        
     halt:
     mov ah,4ch
