@@ -1,0 +1,405 @@
+;**************************************************************************
+;Calculadora Aritmetica Basica
+;El siguiente programa realiza las 
+;funciones basicas de una calculadora, opera con 2 digitos
+;**************************************************************************
+;
+; MODIFICACINOES A PARTIR DE LA LINEA 182; POR FAVOR REVISAR.
+.model small
+.stack 100h  
+
+.data
+
+titulo DB  "*  CALCULADORA ARITMETICA LOGICA BASICA  *$"
+solicitar dB "operacion:$"
+mensaje db "AMPERSON$"
+mas db "MAS$"
+
+.code 
+
+MOV AX,@DATA
+mov ds,ax
+
+start:
+;marco principal 
+mov ax,0600h
+mov bh,4eh      ;nibble alto: color del fondo  / nibble bajo: color del texto
+mov cx,0610h
+
+mov dx,1234h
+int 10h   
+
+;HEX    BIN        COLOR
+
+;0      0000      black
+;1      0001      blue
+;2      0010      green
+;3      0011      cyan
+;4      0100      red
+;5      0101      magenta
+;6      0110      brown
+;7      0111      light gray
+;8      1000      dark gray
+;9      1001      light blue
+;A      1010      light green
+;B      1011      light cyan
+;C      1100      light red
+;D      1101      light magenta
+;E      1110      yellow
+;F      1111      white   
+
+;posicionar el cursor para titulo
+mov dx,0814h
+mov ah,02h      ;Posiciona el cursor
+mov bh,00h
+int 10h
+;escribir string de titulo
+mov ah,09h
+mov cx,01h
+mov dx,offset titulo; dir. base string CALCULADORA
+int 21h
+;posicionar el cursor para texto
+mov dx,0A14h
+mov ah,02h
+mov bh,00h
+int 10h
+;escribir string de solicitud de operación
+mov ah,09h
+mov cx,01h
+mov dx,offset solicitar; dir string de solicitar operación
+int 21h
+
+;marco de datos
+mov ax,0600h
+mov bh,0e0h ;70
+mov cx,0A20h
+mov dx,0B36h
+Int 10h
+;marco de símbolo &
+mov ax,0600h
+mov bh,0D7h
+mov cx,1014h
+mov dx,1118h
+int 10h
+;posicionar cursor
+mov dx,1016h
+mov ah,02h
+mov bh,00h
+int 10h
+;escribir simbolo
+mov ah,02h
+mov cx,01h
+mov dl,26h; simbolo &
+int 21h
+;marco de simbolo +
+mov ax,0600h
+mov bh,0D7h
+mov cx,1020h
+mov dx,1124h
+int 10h
+;posicionar cursor
+mov dx,1022h
+mov ah,02h
+mov bh,00h
+int 10h
+;escribir simbolo
+mov ah,02h
+mov cx,01h
+mov dl,2Bh; simbolo +
+int 21h
+;marco de simbolo -
+mov ax,0600h
+mov bh,0D7h
+mov cx,1028h
+mov dx,112Ch
+int 10h
+;posicionar cursor
+mov dx,102Ah
+mov ah,02h
+mov bh,00h
+int 10h
+;escribir simbolo
+mov ah,02h
+mov cx,01h
+mov dl,2Dh; simbolo -
+int 21h
+;marco de simbolo *
+mov ax,0600h
+mov bh,0D7h
+mov cx,1030h
+mov dx,1134h
+int 10h
+;posicionar cursor
+mov dx,1032h
+mov ah,02h
+mov bh,00h
+int 10h
+;escribir simbolo
+mov ah,02h
+mov cx,01h
+mov dl,2Ah; simbolo *
+int 21h
+;marco de simbolo /
+mov ax,0600h
+mov bh,0D7h
+mov cx,1038h
+mov dx,113Ch
+int 10h
+;posicionar cursor
+mov dx,103Ah
+mov ah,02h
+mov bh,00h
+int 10h
+;escribir simbolo
+mov ah,02h
+mov cx,01h
+mov dl,2Fh; simbolo /
+int 21h
+;posicionar cursor
+mov dx,0A22h
+mov ah,02h
+mov bh,00h
+int 10h
+;capturar operacion 
+
+
+; reset mouse and get its status:
+mov ax, 0
+int 33h
+
+; display mouse cursor:
+mov ax, 1
+int 33h
+
+check_mouse_buttons:
+;Verificacion constante de la posicion del mouse
+mov ax, 3
+int 33h
+
+;Comparacion de botones
+cmp bx, 3  ; both buttons
+je  hide
+;***************************************************************************
+;**           ACA INICIAN LAS MODIFICACIONES                              **
+;***************************************************************************
+;EJERCICIO 2 Y 3 DE LA PRACTICA
+cmp bx, 1 ; Boton izquierdo
+je  comparar
+
+jmp check_mouse_buttons
+
+hide:
+mov ah,09h
+mov dx,offset titulo; dir. base string CALCULADORA
+int 21h
+
+
+;mov cx,1020h
+;mov dx,1124h
+
+comparar:
+cmp  cx, 00A0h   ;Comparar primera coordenada x de todos los botones, La fila de botones
+jge  comparacion_amp_x2 ;Si es mayor o igual que la primera coordenada X de la fila de botones, saltar
+
+;jmp check_mouse_buttons
+;cmp dx, 1124h
+
+
+comparacion_amp_x2:       
+     cmp cx,00C5h            ;Compara con el final del boton de &
+     jle comparacion_amp_y1  ;Salta a comparar las coordenadas Y
+     
+     jmp comparacion_mas_x2  ;Si falla compara con la coordenada X del boton de +, recuerde que esta coordenada aplica para toda la fila de botones
+     jmp check_mouse_buttons
+
+comparacion_amp_y1:         ;Compara con la coordenada y de arriba de los botones
+     cmp dx,0082h
+     jge comparacion_amp_y2 ;Si se verdad salta a comparar con la otra coordenada Y
+    
+     jmp check_mouse_buttons
+     
+comparacion_amp_y2:         ;Compara con la coordenada y de abajo
+     cmp dx,008Fh
+     jle mensaje_amp        ;Salta a un metodo para imprimir el mensaje
+     jmp check_mouse_buttons     
+     
+mensaje_amp:
+
+    mov ah,02h
+    mov dh,03h ;row
+    mov dl,1Fh ;col
+    int 10h
+          
+    lea dx,mensaje
+    mov ah,09h
+    int 21h
+    
+    mov ah,00h
+    mov al,03h
+    
+    int 10h
+    jmp start
+comparacion_mas_x1:         ;Como esta clickeando sobre la fila de botones hay que discrimar a quien quiere clickear
+    cmp cx,0101h            ;Compara con el inicio del boton
+    jge comparacion_mas_x2  ;Si es verdad salta a comparar con la coordenada x de al final.
+                             
+                            ;Para seguir agregando botones, siga toda esta misma logica aca, asi seguiria discriminando botones.    
+            
+    
+    
+    jmp check_mouse_buttons         
+             
+comparacion_mas_x2:         ;Comparacion de coordenadas X del boton, 
+                            
+     cmp dx,0128h
+     jle comparacion_mas_y1
+     jmp check_mouse_buttons
+
+comparacion_mas_y1:         ;Comparacion con las coordenadas Y del boton, se requiere pues se debe llegar al mensaje del boton
+     cmp dx,0082h           ;SE PUEDE CORREGUIR CON UNA MACRO Y CON UN PARAMETRO
+     jge comparacion_mas_y2 ;Comparar con la coordenada Y inferior
+     jmp check_mouse_buttons
+     
+comparacion_mas_y2:
+     cmp dx,008Fh
+     jle mensaje_mas        ;Salta para mostrar el mensaje
+     jmp check_mouse_buttons     
+     
+mensaje_mas:
+
+    mov ah,02h
+    mov dh,00h ;row
+    mov dl,1Fh ;col
+    int 10h
+          
+    lea dx,mas
+    mov ah,09h
+    int 21h
+    
+    mov ah,00h
+    mov al,03h
+    
+    int 10h
+    jmp start
+
+call CALC
+;posicionar cursor
+mov dx,1400h
+mov ah,02h
+mov bh,00h
+int 10h
+mov ah,01h
+int 21h
+mov ah,4Ch
+int 21h
+
+
+;funciones de la calculadora 
+CALC:
+CALL    CAPT; llamar a capturar operando
+PUSH    AX;  guarda dato 1 en pila
+MOV     AH,01h; capturar operador
+INT     21h
+MOV     DL,AL; lo guarda el DL
+CALL    CAPT; llamar a capturar operando
+MOV     BX,AX;  guarda dato 2 en BX
+POP     AX; recupera dato 1
+
+;comparacion del operador para llamar al procedimiento de la operación escogida
+
+CMP     DL,2Bh; (+)
+JZ      SUMA ;salta a sumar
+CMP     DL,2Dh;(-)
+JZ      RESTA ; salta a restar
+CMP     DL,2Ah;(*)
+JZ      MULT;salta a multiplicar
+CMP     DL,2Fh; (/)
+JZ     DIVISION; salta a dividir
+CMP     DL,26h;(&)
+JZ     AND_LOGICA; salta a and
+
+RESULTADO:
+MOV     AH,02h; posición de retorno de calculo
+MOV     DL,3Dh; (=)
+INT     21h; imprime caracter
+MOV     DL,CL; acarreo o signo negativo
+INT     21h; imprime caracter
+MOV     DL,BH; digito mas significativo
+INT     21h; imprime caracter
+MOV     DL,BL; digito menos significativo
+INT     21h; imprime caracter
+RET; retornar a la interfase gráfica que lo llamo
+
+;capturar operando
+CAPT:
+MOV     AH,01h
+INT     21h
+MOV     BH,AL
+INT     21h
+MOV     AH,BH
+SUB     AX,3030h    ;convierte de ascii a binario natural
+RET
+
+SUMA:
+MOV     CL,00
+ADD     AX,BX
+CMP     AL,0Ah
+JB      DIGITO
+DAA
+INC     AH
+DIGITO:
+MOV     BL,AL
+MOV     AL,AH
+CMP     AL,0Ah
+JB     DECENA
+DAA
+MOV     CL,31h
+DECENA:
+MOV     BH,AL
+AND     BX,0F0Fh
+OR      BX,3030h
+JMP     RESULTADO
+
+resta:
+MOV     CL,00
+CMP     AX,BX
+JGE     restar
+XCHG    AX,BX
+MOV     CL,2Dh
+restar:
+SUB     AX,BX
+CMP     AL,0Ah
+JB      listo
+DAS
+listo:
+MOV     BX,AX
+AND     BX,0F0Fh
+OR      BX,3030h
+JMP     RESULTADO
+
+;nota: multiplicaciones de operandos de un digito 
+MULT:
+MOV     CL,00
+MUL     BL
+AAM
+MOV     BX,AX
+AND     BX,0F0Fh
+OR      BX,3030h
+JMP     RESULTADO
+
+;divisiones de numeros resultado de productos de un digito DIV es rervada no se usa como etiqueta
+DIVISION:
+MOV     CL,00
+AAD
+DIV     BL
+MOV     BL,AL
+OR      BL,30h
+JMP     RESULTADO
+
+AND_LOGICA:
+AND     BX,AX
+OR      BX,3030h
+MOV     CX,0000h
+JMP     RESULTADO
+
+END
