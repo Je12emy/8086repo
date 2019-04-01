@@ -1,0 +1,102 @@
+;MENU BASICO
+.MODEL SMALL
+.STACK 100H
+.DATA
+    mensaje db "Ingrese 0 para salir o 1 para seguir:$"
+    respuesta db "Ingreso la tecla:$"
+    mensaje2 db "Ingrese una tecla:$"
+    teclado db "$"
+    enter db 0AH,0DH,'$'
+    salida db "Ingreso 0; saliendo del programa...$"
+.CODE
+    inicio:
+    mov ax,@DATA
+    mov ds,ax
+    
+    programa:       ;Rutina basica de programa
+    lea dx,mensaje  
+    call println()
+    call readkey()
+    call compara()  ;Llama a un metodo para comparar el teclaso introducido
+       
+    halt:
+    call goto()
+    lea dx,salida
+    call println()
+    
+    mov ah,4ch
+    int 21h
+
+    ascii:              ;Programa basico para mostrarle al usuario que ingreso por pantalla
+        
+        call espacio()
+        lea dx,mensaje2
+        call println()
+        call readkey()
+        mov teclado,al
+        call getchr() 
+        
+;***** METODOS *****
+compara() proc
+    cmp al,30h   ;Compara la entrada por teclado almacenada en AL contra 30h(0)
+    je halt      ;Si es verdad salta a halt:
+    cmp al,31h   ;Compara contra un 31h(1)
+    je  ascii    ;Si es verdad salta a ascii
+    call clear() ;Si no se cumple nada(else) limpiar y salta al inicio
+    
+    jmp programa
+    ret 
+    
+endp
+
+espacio() proc 
+    lea dx,enter
+    call println()
+    ret
+endp
+
+
+    
+getchr() proc
+    call espacio()
+    lea dx,respuesta
+    call println()
+    mov dl,teclado
+    mov ah,02h    
+    ;add dl,30h
+    
+    int 21h
+    call readkey()
+    call clear()
+    
+    ret
+endp
+
+
+
+println() proc 
+    mov ah,09h
+    int 21h
+    ret
+endp       
+readkey() proc
+    mov ah,01h
+    int 21h
+    ret
+endp  
+clear() proc
+    mov ah,00h
+    mov al,03h
+    int 10h
+    jmp inicio
+    ret
+endp 
+goto() proc
+    mov ah,02h
+    mov dh,40h
+    mov dl,25h
+    
+    int 10h
+    ret
+    endp
+end
