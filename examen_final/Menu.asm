@@ -31,8 +31,8 @@ strlen() macro largo, decimas, unidades
  	mov ah,02h
 	int 21h       
     
-    mov ah,01h
-    int 21h  
+    ;mov ah,01h
+    ;int 21h  
 endm
 
 strcmp() macro MS, MS2, cadena1, cadena2, erro, bien
@@ -167,11 +167,11 @@ endm
      opcion1 db "[1] Obtener el largo de una cadena.$"
      opcion2 db "[2] Comparar dos cadenas de texto.$"
      opcion3 db "[3] Comparar N caracteres de dos cadenas de texto.$"
-     opcion4 db "[4] [por ]$"
+     opcion4 db "[4] [POR DEFINIR]$"
      opcion5 db "[5] Salir.$"
     
      input db "Ingrese una opcion:|$"
-
+     input_txt db "Ingrese el nombre del fichero:$"
 
 
 
@@ -215,97 +215,106 @@ endm
 	;bien      DB    'correcto','$' 
 	bytes_leidos db "$"
 	   
-.code                              
+.code
+inicio:                              
     mov ax,@data
     mov ds,ax
     
 ;********* MENU
-;menu:
-;    mov ah,00h      ;limpiar
-;    mov al,03h
-;    int 10h
-;
-;    mov dh,005h    ;row
-;    mov dl,013h    ;col
-;    call goto()
-;    
-;    lea dx,opcion1
-;    call println()
-;    
-;    mov dh,008h    ;row
-;    mov dl,013h    ;col
-;    call goto()   
-;    
-;    lea dx,opcion2
-;    call println()
-;    
-;    mov dh,00bh    ;row
-;    mov dl,013h    ;col
-;    call goto()   
-;    
-;    lea dx,opcion3
-;    call println()
-;    
-;    mov dh,00eh    ;row
-;    mov dl,013h    ;col
-;    call goto()   
-;    
-;    lea dx,opcion4
-;    call println()
-;    
-;    mov dh,011h    ;row
-;    mov dl,013h    ;col
-;    call goto()   
-;    
-;    lea dx,opcion5
-;    call println()
-;    
-;    mov dh,013h    ;row
-;    mov dl,013h    ;col
-;    call goto()   
-;    
-;    lea dx,input
-;    call println()
-;      
-;    call readkey()
-;    cmp al,31h
-;    je len
-;    cmp al,32h
-;    ;je comparar
-;    cmp al,33h
-;    ;je compararN
-;    cmp al,34h
-;    ;je follow
-;    jmp menu 
-;;*************
-;    len:
-;    call leer_txt
-;    call clear
-;    strlen() bytes_leidos, decimas, unidades
-;    call readkey()    
-;    jmp menu
+menu:
 
-;    comparar:
-;    call leer_txt
-;    call clear
-;    strcmp() MS, MS2, BufferLeerDisco, cadena2, erro, bien
-;    call readkey()    
-;    jmp menu 
+    
+    call clear()
+    ;mov ah,00h      ;limpiar
+    ;mov al,03h
+    ;int 10h
 
-;    compararN:
-;    call leer_txt
-;    call clear
-;    strNcmp() MS, MS2, cadena1, cadena2, bien, erro, maximo, contador
-;    call readkey()    
-;    jmp menu    
+    mov dh,005h    ;row
+    mov dl,013h    ;col
+    call goto()
+    
+    lea dx,opcion1
+    call println()
+    
+    mov dh,008h    ;row
+    mov dl,013h    ;col
+    call goto()   
+    
+    lea dx,opcion2
+    call println()
+    
+    mov dh,00bh    ;row
+    mov dl,013h    ;col
+    call goto()   
+    
+    lea dx,opcion3
+    call println()
+    
+    mov dh,00eh    ;row
+    mov dl,013h    ;col
+    call goto()   
+    
+    lea dx,opcion4
+    call println()
+    
+    mov dh,011h    ;row
+    mov dl,013h    ;col
+    call goto()   
+    
+    lea dx,opcion5
+    call println()
+    
+    mov dh,013h    ;row
+    mov dl,013h    ;col
+    call goto()   
+    
+    lea dx,input
+    call println()
+      
+    call readkey()
+    cmp al,31h
+    je len
+    cmp al,32h
+    je comparar
+    cmp al,33h
+    je compararN
+    cmp al,34h
+    ;je follow
+    jmp menu 
+;*************
+    len:
+    call leer_txt
+    call clear()
+    strlen() bytes_leidos, decimas, unidades
+    call readkey()    
+    jmp menu
+
+    comparar:
+    call leer_txt
+    call clear()
+    strcmp() MS, MS2, BufferLeerDisco, cadena2, erro, bien
+    call readkey()    
+    jmp menu 
+
+    compararN:
+    call leer_txt
+    call clear()
+    strNcmp() MS, MS2, cadena1, cadena2, bien, erro, maximo, contador
+    call readkey()    
+    jmp menu    
        
     
 ;*******    
-;leer_txt proc    
+leer_txt proc    
     push ds			
 	pop es
-   
-    LEA   DX,EntradaDelFichero                      ;Lo que hacemos con estas instrucciones
+    
+    mov dh,015h    ;row
+    mov dl,013h    ;col
+    call goto()
+    
+    
+    LEA   DX,input_txt                              ;Lo que hacemos con estas instrucciones
     MOV   AH,9                                      ;es pasar a la pantalla, el contenido
     INT   21h                                       ;de la memoria, apuntado por EntradaDelFichero
     
@@ -324,7 +333,7 @@ endm
     MOV   AL,0                                      ; Lo abrimos para  lectura
     MOV   AH,3Dh                                    ; Esta función nos abrirá el fichero
     INT   21h                                       ; Y ahora llamamos al DOS
-    ;JC    MostramosError                           ; Mirando los flags si CF=1 Mostrariamos un error
+    JC    MostramosError                           ; Mirando los flags si CF=1 Mostrariamos un error
     MOV   ContieneHandle,AX                         ; En el buffer reservado guardamos
     
 LeemosElFichero:
@@ -342,39 +351,45 @@ LeemosElFichero:
     
     mov bytes_leidos,cl             
     
-;    JCXZ  CerramosElFichero                        ; Si es 0 leidos entonces no hay nada que i
-    PUSH  AX                                        ; preservarmos ax en La Pila
-    LEA   BX,BufferLeerDisco                        ; imprimir BufferLeerDisco ...
-
+    JCXZ  CerramosElFichero                        ; Si es 0 leidos entonces no hay nada que i
     
-;ret
-;endp
-    strlen() bytes_leidos, decimas, unidades
-    strcmp() MS, MS2, BufferLeerDisco, cadena2, erro, bien
-    strNcmp() MS, MS2, cadena1, cadena2, bien, erro, maximo, contador
+    ;PUSH  AX                                        ; preservarmos ax en La Pila
+    ;LEA   BX,BufferLeerDisco                        ; imprimir BufferLeerDisco ...
     
+    ;call clear()
     
-
-
-
+    mov ax,@data
+    mov ds,ax
     
-;CerramosElFichero: 
-;    MOV   BX,ContieneHandle                        ;Handle de acceso al fichero hilario.txt
+ret
+endp
+;    strlen() bytes_leidos, decimas, unidades
+;    strcmp() MS, MS2, BufferLeerDisco, cadena2, erro, bien
+;    strNcmp() MS, MS2, cadena1, cadena2, bien, erro, maximo, contador
 ;    
-;    MOV   AH,3Eh                                   ; CerramosElFichero 
-;    INT   21h                                      ; Llamaremos  al DOS
-;    JC    MostramosError
-;                                                   ; sI EL FLAG CF = 1, QUE ESTARÍA EN CY --> MostramosError
-;;    MOV AH,4CH
-;;    INT   21h                                     ; Y llegamos al fin del programa
-;
-;MostramosError:
-;    LEA   DX,MensajeDeMostramosError               ;  MostramosError
-;    MOV   AH,9                                     ; función de escribir en consola
-;    INT   21h                                      ; Llamaremos al DOS
-;    CMP   ContieneHandle,0                         ;Coparamos si el handle está 0 "!fichero abierto"!
-;    JNE   CerramosElFichero
-;                                                   ; Y fin del programa
+    
+
+
+
+    
+ CerramosElFichero: 
+    MOV   BX,ContieneHandle                        ;Handle de acceso al fichero hilario.txt
+    
+    MOV   AH,3Eh                                   ; CerramosElFichero 
+    INT   21h                                      ; Llamaremos  al DOS
+    JC    MostramosError
+    jmp menu
+                                                   ; sI EL FLAG CF = 1, QUE ESTARÍA EN CY --> MostramosError
+;    MOV AH,4CH
+;    INT   21h                                     ; Y llegamos al fin del programa
+
+MostramosError:
+    LEA   DX,MensajeDeMostramosError               ;  MostramosError
+    MOV   AH,9                                     ; función de escribir en consola
+    INT   21h                                      ; Llamaremos al DOS
+    CMP   ContieneHandle,0                         ;Coparamos si el handle está 0 "!fichero abierto"!
+    JNE   CerramosElFichero
+                                                   ; Y fin del programa
     
     
     ;strlen() decimas,unidades,BufferLeerDisco2,msg     
