@@ -2,7 +2,12 @@
 ;2. Ingresar las coordenadas de inicio del cuadrado.
 .model small
 .stack 100h
-.data
+.data 
+    salir dw "Saliendo...$"
+    msg_largo dw "Ingrese el largo de la figura:$"
+    msg_ancho dw "Ingrese el ancho de la figura:$"
+    input_with dw "$"
+    input_length dw "$"
     x dw "$"
     y dw "$"
     xx dw "$"
@@ -12,11 +17,12 @@
     length_aux dw "$"
     x_aux dw "$"
     xx_aux dw "$"
+    
     opcion1 db "[1] Iniciar el juego.$"
     opcion2 db "[2] Ingresar las coordenadas de inicio.$"
     opcion3 db "[3] Marcar coodenadas de inicio.$"
     opcion4 db "[4] Perseguir mouse.$"
-    opcion5 db "[5] Salir.$"
+    opcion5 db "[S] Salir.$"
     
     
     
@@ -104,6 +110,10 @@ menu:
     je mouse_xy
     cmp al,34h
     je follow
+    cmp al,53h
+    je halt
+    cmp al,73h
+    je halt
     jmp halt
     
 coordenadas:                    ;Captura las coordenadas de inicio del cuadrado. 
@@ -300,6 +310,13 @@ movimiento:
     
     
 halt:
+    mov dh,016h    ;row
+    mov dl,013h    ;col
+    call goto()
+    
+    lea dx,salir
+    mov ah,09h
+    int 21h
     mov ah,4ch
     int 21h
    
@@ -511,5 +528,18 @@ unir_coordenadas_y() proc
     ;call readkey()
     
     ret
-endp 
+endp
+cargar_parametros_character proc
+    mov ah,00h
+    mov al,03h
+    int 10h
+    
+    lea dx,msg_largo
+    call readkey()
+    
+    
+    ret
+endp
+
+
 end
