@@ -10,6 +10,88 @@
 
 
 ;MACROS [TEMPORAL]
+STRRCHR MACRO CADENA,CARACTER
+    
+    LOCAL CICLO,IGUALES,IMPRIMIR,TEXTO,SALIR
+        
+    mov si,0h
+    
+    mov ah,09
+    mov dx,offset msj2
+    int 21h
+    
+    mov ah,01h
+    int 21h
+    
+    MOV LETRA,AL
+    
+    MOV CONT,00H
+    MOV CARACTER,AL
+
+CICLO:
+
+    CMP CADENA[SI],0DH    ;VERIFICA SI YA LLEGO AL ENTER
+    JE  SALIR
+    
+    MOV AL,LETRA
+    CMP AL,CADENA[SI]
+    JE  IGUALES
+    INC SI
+    JMP CICLO
+    
+IGUALES:
+
+    MOV POSICION,SI
+    INC SI 
+    
+IMPRIMIR: 
+
+    CMP CONT,00H
+    JE  TEXTO
+
+    SUB POSICION,02H           ;PARA DEVOLVER LA POSICION VISUAL 
+    
+    MOV AX,POSICION
+    
+    AAM
+	
+	MOV D,AH
+	MOV U,AL
+	
+	ADD D,30H
+	ADD U,30H
+	
+	mov dl,D			;prepara el despligue
+ 	mov ah,02h
+	int 21h				;despliega el contenido de dl=al= pos 2 de la cadena.
+    
+    mov dl,U			;prepara el despligue
+ 	mov ah,02h
+	int 21h
+	
+	mov dl,1FH			;prepara el despligue
+ 	mov ah,02h
+	int 21h
+    
+    JMP CICLO
+    
+TEXTO:
+
+    MOV AH,09
+    MOV DX,offset ENCONTRADO
+    INT 21H
+    INC CONT
+    JMP IMPRIMIR
+    
+SALIR:
+endm
+
+
+
+
+
+
+
 strlen() macro largo, decimas, unidades
     mov al,largo 
     dec al
@@ -87,11 +169,7 @@ strcmp() macro MS, MS2, cadena1, cadena2, erro, bien
 endm
 
 strNcmp() macro MS, MS2, cadena1, cadena2, erro, bien,maximo, contador
-    
-     LOCAL otro,error, end_macro              
-   
-     
-     lea dx, maximo
+    lea dx, maximo
 	 mov ah,09h
 	 int 21h
 	
@@ -99,8 +177,7 @@ strNcmp() macro MS, MS2, cadena1, cadena2, erro, bien,maximo, contador
 	 int 21h
 	
 	 sub al,30h
-	 mov contador, al  
-     
+	 mov contador, al   
      
      MOV     AH,0			 
      MOV     AL,3			
@@ -126,39 +203,31 @@ strNcmp() macro MS, MS2, cadena1, cadena2, erro, bien,maximo, contador
 	 mov cl,al	 
  	
 	 mov di,offset cadena1 
-	 mov si,offset cadena2 + 2  
-	
+	 mov si,offset cadena2 + 2 
+	 
+	 
 	 otro:
-        cmpsb
-	    jnz error
-	    dec cl		
-	    dec contador
-	    jnz otro
+     cmpsb
+	 jnz error
+	 dec cl		
+	 dec contador
+	 jnz otro	
 	
-	
-        mov dx,offset bien
-    	mov ah,09h
-    	int 21h
+     mov dx,offset bien
+     mov ah,09h
+     int 21h
     	
-    	jmp end_macro	
+     jmp end_cmp	
 	
 	 error:
-	
+	     mov ah,4ch
+	     int 21h
+	     
     	 mov dx,offset erro
     	 mov ah,09h
     	 int 21h
-     end_macro:  
-endm
-
-
-
-
-
-
-
-
-
-
+    end_cmp:
+ endm     
 
 .model small
 .stack 100h
@@ -167,7 +236,7 @@ endm
      opcion1 db "[1] Obtener el largo de una cadena.$"
      opcion2 db "[2] Comparar dos cadenas de texto.$"
      opcion3 db "[3] Comparar N caracteres de dos cadenas de texto.$"
-     opcion4 db "[4] [POR DEFINIR]$"
+     opcion4 db "[4] Buscar una letra.$"
      opcion5 db "[5] Salir.$"
     
      input db "Ingrese una opcion:|$"
@@ -214,7 +283,23 @@ endm
 	;erro      db    'error','$'
 	;bien      DB    'correcto','$' 
 	bytes_leidos db "$"
-	   
+	;*********PARAMETROS PARA strSearch()
+	    ;    MS         DB    0ah,0dh,'Digite un texto: ','$' 
+        ENCONTRADO DB    0ah,0dh,'El caracter buscado se encuentra en las posiciones: ','$'
+        
+        
+        msj2       DB    0ah,0dh,'Digite el caracter a buscar ','$'
+	    
+;	    cadena1   db     100,0,50 dup (?)
+;	    cadena2   db     15,0,15 dup (?)
+	    
+	    Letra   db 0
+	    
+	    D   db   0
+	    U   db   0
+	    
+	    CONT   db   0
+	    posicion dw 0,"$"   
 .code
 inicio:                              
     mov ax,@data
@@ -279,7 +364,7 @@ menu:
     cmp al,33h
     je compararN
     cmp al,34h
-    ;je follow
+    je search
     jmp menu 
 ;*************
     len:
@@ -299,10 +384,15 @@ menu:
     compararN:
     call leer_txt
     call clear()
-    strNcmp() MS, MS2, cadena1, cadena2, bien, erro, maximo, contador
+    strNcmp() MS, MS2, BufferLeerDisco, cadena2, erro, bien,maximo, contador 
     call readkey()    
     jmp menu    
-       
+    search:
+    call leer_txt
+    call clear()
+    STRRCHR BufferLeerDisco, letra
+    call readkey()
+    jmp menu    
     
 ;*******    
 leer_txt proc    
@@ -426,6 +516,10 @@ clear() proc
     int 10h
     ret
 endp
+
+
+;ncomp:
+  	 
 
 END ;ComenzandoElCodigo    
     
