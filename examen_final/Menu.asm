@@ -1,19 +1,7 @@
-;include macros_examen.txt         
-
-
-
-
-
-
-
-
-
-
-;MACROS [TEMPORAL]
-STRRCHR MACRO CADENA,CARACTER
+;examen
+search_l macro posicion, d, u, cont, encontrado,ms2,letra
     
-    LOCAL CICLO,IGUALES,IMPRIMIR,TEXTO,SALIR
-        
+    local comparar_letra, iguales,imprimir_posicion, texto 
     mov si,0h
     
     mov ah,09
@@ -26,71 +14,63 @@ STRRCHR MACRO CADENA,CARACTER
     MOV LETRA,AL
     
     MOV CONT,00H
-    MOV CARACTER,AL
+    MOV letra,AL
 
-CICLO:
+comparar_letra:
 
-    CMP CADENA[SI],0DH    ;VERIFICA SI YA LLEGO AL ENTER
-    JE  SALIR
+    cmp BufferLeerDisco[SI],0DH 
+    je  salir
     
-    MOV AL,LETRA
-    CMP AL,CADENA[SI]
-    JE  IGUALES
+    mov al,letra
+    cmp al,BufferLeerDisco[SI]
+    je  iguales
+    inc si
+    jmp comparar_letra
+    
+iguales:
+
     INC SI
-    JMP CICLO
+    MOV posicion,SI
+     
     
-IGUALES:
+imprimir_posicion:  
 
-    MOV POSICION,SI
-    INC SI 
+    cmp cont,00H
+    je  texto 
     
-IMPRIMIR: 
-
-    CMP CONT,00H
-    JE  TEXTO
-
-    SUB POSICION,02H           ;PARA DEVOLVER LA POSICION VISUAL 
+    mov ax,posicion
     
-    MOV AX,POSICION
-    
-    AAM
+    aam
 	
-	MOV D,AH
-	MOV U,AL
+	mov D,AH
+	mov U,AL
 	
-	ADD D,30H
-	ADD U,30H
+	add D,30H
+	add U,30H
 	
-	mov dl,D			;prepara el despligue
+	mov dl,D			
  	mov ah,02h
-	int 21h				;despliega el contenido de dl=al= pos 2 de la cadena.
+	int 21h				
     
-    mov dl,U			;prepara el despligue
+    mov dl,U			
  	mov ah,02h
 	int 21h
 	
-	mov dl,1FH			;prepara el despligue
+	mov dl,1FH			
  	mov ah,02h
 	int 21h
     
-    JMP CICLO
+    jmp salir
     
-TEXTO:
+texto:
 
-    MOV AH,09
-    MOV DX,offset ENCONTRADO
-    INT 21H
-    INC CONT
-    JMP IMPRIMIR
-    
-SALIR:
+    mov ah,09
+    mov dx,offset encontrado
+    int 21H
+    inc cont
+    jmp imprimir_posicion    
+salir:
 endm
-
-
-
-
-
-
 
 strlen() macro largo, decimas, unidades
     mov al,largo 
@@ -169,7 +149,7 @@ strcmp() macro MS, MS2, cadena1, cadena2, erro, bien
 endm
 
 strNcmp() macro MS, MS2, cadena1, cadena2, erro, bien,maximo, contador
-    lea dx, maximo
+     lea dx, maximo
 	 mov ah,09h
 	 int 21h
 	
@@ -237,7 +217,7 @@ strNcmp() macro MS, MS2, cadena1, cadena2, erro, bien,maximo, contador
      opcion2 db "[2] Comparar dos cadenas de texto.$"
      opcion3 db "[3] Comparar N caracteres de dos cadenas de texto.$"
      opcion4 db "[4] Buscar una letra.$"
-     opcion5 db "[5] Salir.$"
+     opcion5 db "[S] Salir.$"
     
      input db "Ingrese una opcion:|$"
      input_txt db "Ingrese el nombre del fichero:$"
@@ -293,13 +273,17 @@ strNcmp() macro MS, MS2, cadena1, cadena2, erro, bien,maximo, contador
 ;	    cadena1   db     100,0,50 dup (?)
 ;	    cadena2   db     15,0,15 dup (?)
 	    
-	    Letra   db 0
+	    ;Letra   db 0
 	    
 	    D   db   0
 	    U   db   0
 	    
 	    CONT   db   0
-	    posicion dw 0,"$"   
+	    posicion dw 0,"$"  
+    ;********PARAMETROS PARA search_alt()
+    letra db "Ingrese la letra por buscar:$"
+    ;largo
+    input_letra db "$"	     
 .code
 inicio:                              
     mov ax,@data
@@ -365,6 +349,10 @@ menu:
     je compararN
     cmp al,34h
     je search
+    cmp al,53h
+    je halt
+    cmp al,73h
+    je halt
     jmp menu 
 ;*************
     len:
@@ -390,7 +378,9 @@ menu:
     search:
     call leer_txt
     call clear()
-    STRRCHR BufferLeerDisco, letra
+    search_l posicion, d, u, cont, encontrado,ms2,letra
+    ;imprimir_posicion posicion, d, u, cont, encontrado
+    ;STRRCHR BufferLeerDisco, letra
     call readkey()
     jmp menu    
     
@@ -517,9 +507,48 @@ clear() proc
     ret
 endp
 
+     
+ 
+;buscar_letra:
+;     xor cx,cx
+;     
+;     
+;     MOV AH,0			 
+;     MOV AL,3			
+;     INT 10H 
+;	
+;	 MOV DX, OFFSET input_letra
+;	 MOV AH, 09H
+;	 INT 21H
+;	 
+;	 call readkey()                  
+;	 mov ah,00h
+;	 mov di,offset BufferLeerDisco
+;	 mov si,offset al
+;	 mov cl,largo
+;	 
+;	 otro_buscar:
+;     cmpsb
+;	 je posicion_letra
+;	 dec cl		
+;	 jnz otro_buscar
+;     jmp fin_buscar
+;     posicion_letra:
+;     mov dl,si
+;     mov ah,02h
+;     int 21h
+;     fin_buscar:
+;     jmp menu    
+ 
 
-;ncomp:
-  	 
+ 
+ 
+ 
+
+
+halt:
+    mov ah,4ch
+    int 21h  	 
 
 END ;ComenzandoElCodigo    
     
