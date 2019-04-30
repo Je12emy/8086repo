@@ -1,15 +1,77 @@
-;include macros_examen.txt         
+;examen
+search_l macro posicion, d, u, cont, encontrado,ms2,letra
+    
+    local comparar_letra, iguales,imprimir_posicion, texto 
+    mov si,0h
+    
+    mov ah,09
+    mov dx,offset msj2
+    int 21h
+    
+    mov ah,01h
+    int 21h
+    
+    MOV LETRA,AL
+    
+    MOV CONT,00H
+    MOV letra,AL
 
+comparar_letra:
 
+    cmp BufferLeerDisco[SI],0DH 
+    je  salir
+    
+    mov al,letra
+    cmp al,BufferLeerDisco[SI]
+    je  iguales
+    inc si
+    jmp comparar_letra
+    
+iguales:
 
+    INC SI
+    MOV posicion,SI
+     
+    
+imprimir_posicion:  
 
+    cmp cont,00H
+    je  texto 
+    
+    mov ax,posicion
+    
+    aam
+	
+	mov D,AH
+	mov U,AL
+	
+	add D,30H
+	add U,30H
+	
+	mov dl,D			
+ 	mov ah,02h
+	int 21h				
+    
+    mov dl,U			
+ 	mov ah,02h
+	int 21h
+	
+	mov dl,1FH			
+ 	mov ah,02h
+	int 21h
+    
+    jmp salir
+    
+texto:
 
+    mov ah,09
+    mov dx,offset encontrado
+    int 21H
+    inc cont
+    jmp imprimir_posicion    
+salir:
+endm
 
-
-
-
-
-;MACROS [TEMPORAL]
 strlen() macro largo, decimas, unidades
     mov al,largo 
     dec al
@@ -87,10 +149,6 @@ strcmp() macro MS, MS2, cadena1, cadena2, erro, bien
 endm
 
 strNcmp() macro MS, MS2, cadena1, cadena2, erro, bien,maximo, contador
-    
-     LOCAL otro,error, end_macro              
-   
-     
      lea dx, maximo
 	 mov ah,09h
 	 int 21h
@@ -99,8 +157,7 @@ strNcmp() macro MS, MS2, cadena1, cadena2, erro, bien,maximo, contador
 	 int 21h
 	
 	 sub al,30h
-	 mov contador, al  
-     
+	 mov contador, al   
      
      MOV     AH,0			 
      MOV     AL,3			
@@ -126,39 +183,31 @@ strNcmp() macro MS, MS2, cadena1, cadena2, erro, bien,maximo, contador
 	 mov cl,al	 
  	
 	 mov di,offset cadena1 
-	 mov si,offset cadena2 + 2  
-	
+	 mov si,offset cadena2 + 2 
+	 
+	 
 	 otro:
-        cmpsb
-	    jnz error
-	    dec cl		
-	    dec contador
-	    jnz otro
+     cmpsb
+	 jnz error
+	 dec cl		
+	 dec contador
+	 jnz otro	
 	
-	
-        mov dx,offset bien
-    	mov ah,09h
-    	int 21h
+     mov dx,offset bien
+     mov ah,09h
+     int 21h
     	
-    	jmp end_macro	
+     jmp end_cmp	
 	
 	 error:
-	
+	     mov ah,4ch
+	     int 21h
+	     
     	 mov dx,offset erro
     	 mov ah,09h
     	 int 21h
-     end_macro:  
-endm
-
-
-
-
-
-
-
-
-
-
+    end_cmp:
+ endm     
 
 .model small
 .stack 100h
@@ -167,8 +216,8 @@ endm
      opcion1 db "[1] Obtener el largo de una cadena.$"
      opcion2 db "[2] Comparar dos cadenas de texto.$"
      opcion3 db "[3] Comparar N caracteres de dos cadenas de texto.$"
-     opcion4 db "[4] [POR DEFINIR]$"
-     opcion5 db "[5] Salir.$"
+     opcion4 db "[4] Buscar una letra.$"
+     opcion5 db "[S] Salir.$"
     
      input db "Ingrese una opcion:|$"
      input_txt db "Ingrese el nombre del fichero:$"
@@ -214,7 +263,27 @@ endm
 	;erro      db    'error','$'
 	;bien      DB    'correcto','$' 
 	bytes_leidos db "$"
-	   
+	;*********PARAMETROS PARA strSearch()
+	    ;    MS         DB    0ah,0dh,'Digite un texto: ','$' 
+        ENCONTRADO DB    0ah,0dh,'El caracter buscado se encuentra en las posiciones: ','$'
+        
+        
+        msj2       DB    0ah,0dh,'Digite el caracter a buscar ','$'
+	    
+;	    cadena1   db     100,0,50 dup (?)
+;	    cadena2   db     15,0,15 dup (?)
+	    
+	    ;Letra   db 0
+	    
+	    D   db   0
+	    U   db   0
+	    
+	    CONT   db   0
+	    posicion dw 0,"$"  
+    ;********PARAMETROS PARA search_alt()
+    letra db "Ingrese la letra por buscar:$"
+    ;largo
+    input_letra db "$"	     
 .code
 inicio:                              
     mov ax,@data
@@ -279,7 +348,11 @@ menu:
     cmp al,33h
     je compararN
     cmp al,34h
-    ;je follow
+    je search
+    cmp al,53h
+    je halt
+    cmp al,73h
+    je halt
     jmp menu 
 ;*************
     len:
@@ -299,10 +372,17 @@ menu:
     compararN:
     call leer_txt
     call clear()
-    strNcmp() MS, MS2, cadena1, cadena2, bien, erro, maximo, contador
+    strNcmp() MS, MS2, BufferLeerDisco, cadena2, erro, bien,maximo, contador 
     call readkey()    
     jmp menu    
-       
+    search:
+    call leer_txt
+    call clear()
+    search_l posicion, d, u, cont, encontrado,ms2,letra
+    ;imprimir_posicion posicion, d, u, cont, encontrado
+    ;STRRCHR BufferLeerDisco, letra
+    call readkey()
+    jmp menu    
     
 ;*******    
 leer_txt proc    
@@ -426,6 +506,49 @@ clear() proc
     int 10h
     ret
 endp
+
+     
+ 
+;buscar_letra:
+;     xor cx,cx
+;     
+;     
+;     MOV AH,0			 
+;     MOV AL,3			
+;     INT 10H 
+;	
+;	 MOV DX, OFFSET input_letra
+;	 MOV AH, 09H
+;	 INT 21H
+;	 
+;	 call readkey()                  
+;	 mov ah,00h
+;	 mov di,offset BufferLeerDisco
+;	 mov si,offset al
+;	 mov cl,largo
+;	 
+;	 otro_buscar:
+;     cmpsb
+;	 je posicion_letra
+;	 dec cl		
+;	 jnz otro_buscar
+;     jmp fin_buscar
+;     posicion_letra:
+;     mov dl,si
+;     mov ah,02h
+;     int 21h
+;     fin_buscar:
+;     jmp menu    
+ 
+
+ 
+ 
+ 
+
+
+halt:
+    mov ah,4ch
+    int 21h  	 
 
 END ;ComenzandoElCodigo    
     
