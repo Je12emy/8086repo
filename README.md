@@ -1,7 +1,7 @@
 # 8086repo
 This repository contains .asm code I use for a college course.
 
-If you are visiting this repo aand you are trying to learn .asm concepts feel free to clone, fork, collaborate or ask any questions!
+If you are visiting this repo and you are trying to learn .asm concepts feel free to clone, fork, collaborate or ask any questions!
 
 If you are a student from Mr.Sanabria's class on "Arquitectura de Computadoras II", I created this repo in order to help my classmates understand programming concepts on the Emu8086, certain files are not my own code but rather some of my classmate's code which I asked if I could share on this repo.
 
