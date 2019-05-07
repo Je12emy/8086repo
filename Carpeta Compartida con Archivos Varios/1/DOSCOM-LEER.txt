@@ -1,0 +1,38 @@
+
+
+
+***************************************************************************
+*************************Archivo DOSCOM.bat********************************
+***************************************************************************
+
+
+
+
+
+
+Este archivo está diseñado para abrir una ventana de DOS y así poder 
+
+trabajar con los compiladores en ensamblador (TASM y TLINK) y para correr
+
+los archivos ejecutables creados en ensamblador.
+
+Debe copiarse en la carpeta del disco duro donde residen los archivos 
+
+fuente con los que se está trabajando. Brinda la ventaja de que al abrirse,
+
+automáticamente coloca la ruta o path de donde esté la carpeta con los 
+
+archivos, evitándose el tener que buscar esa carpeta desde el DOS.
+
+
+
+Se recomienda que la carpeta con los archivos fuente (*.asm), donde ha 
+
+de copiarse DOSCOM.bat, esté en la raíz del disco duro local de la 
+
+computadora.
+
+
+
+***************************************************************************
+***************************************************************************

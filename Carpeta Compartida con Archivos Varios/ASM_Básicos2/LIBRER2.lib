@@ -1,0 +1,27 @@
+include librer3.lib 
+
+lee Macro Dato
+	mov ah,1
+	int 21h
+	mov Dato,al
+
+endm
+
+escribe Macro Vari
+	lea dx,Vari
+	mov ah,9
+	int 21h
+endm
+
+gotoxy Macro Fil,Col
+	mov ah,02h
+	mov bh,00
+	mov dh,Fil		;fila
+	mov dl,Col		;columna
+	int 10h
+endm
+
+getch Macro
+	 mov ah,1
+	 int 21h
+endm

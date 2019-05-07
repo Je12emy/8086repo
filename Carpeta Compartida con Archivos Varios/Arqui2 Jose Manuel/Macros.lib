@@ -1,0 +1,45 @@
+;----------------------------------
+;Macro que Realiza la misma funcion que el gotoxy de c y pascal
+;Ubica el cursor en fila, columna
+Gotoxy  macro fila,columna
+        mov ah,2
+	mov bh,00
+        mov dh,fila
+        mov dl,columna
+        int 10h        
+endm
+;-----------------------------------            
+;Limpia la pantalla y ajusta el modo de video
+Clrscr  macro
+        mov ah,0
+        mov al,3
+        int 10h
+endm    
+;-----------------------------------            
+;Espera una pulsacion de tecla
+Getchar macro
+        mov ah,1
+        int 21h
+endm
+;-----------------------------------                                 
+;Imprime por pantalla una cadena de texto
+Printf macro cadena
+	lea dx,cadena
+        mov ah,9
+        int 21h
+endm
+;----------------------------------- 
+;Sale de la aplicacion
+Salir   macro
+        mov ah,4ch
+        int 21h
+endm
+;----------------------------------
+;Captura un dato por pantalla
+;El valor se toma del registro al
+Leer	macro
+        mov ah,01h
+        int 21h
+endm
+;----------------------------------
+

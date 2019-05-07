@@ -1,0 +1,9 @@
+
+
+getcha Macro
+	 mov ah,1
+	 int 21h
+         getch
+endm
+
+

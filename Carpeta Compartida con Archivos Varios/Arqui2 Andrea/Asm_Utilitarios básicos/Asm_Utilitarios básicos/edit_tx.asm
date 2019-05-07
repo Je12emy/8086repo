@@ -1,0 +1,300 @@
+                                               
+.model small
+.stack 30
+.data
+   TABLE5 DB "EDITOR DE TEXTO$"
+   table db "Presiona ENTER para continuar$"
+   table1 db "$"
+   table2 db "ESC para terminar.$"
+   table3 db "$"
+   table4 db "$"
+.code
+   MOV AX,@DATA
+   MOV DS,AX
+   CALL CUADRO
+   CALL NOMBRES
+   CALL CUADRO
+   MOV CH,1
+   MOV CL,1
+
+
+LECT:
+   MOV AH,06H
+   MOV DL,0FFH
+   INT 21H
+ JE LECT
+   CALL SALTO
+   CMP AL,77
+ JE FLECHADE
+   CMP AL,75
+ JE FLECHAI
+   CMP AL,72
+ JE FLECHA
+   CMP AL,80
+ JE FLECHAD
+   CMP AL,27
+ JE FIN
+   MOV DH,CH
+   MOV DL,CL
+   MOV AH,02H
+   MOV BH,00
+   INT 10H
+   CALL COLUMNA
+
+   MOV AH,06H
+   MOV DL,AL
+   INT 21H
+   JMP LECT
+
+
+FIN:
+   MOV AH,4CH
+   INT 21H
+   ;CONTROL DEL DOS   
+
+FLECHAD:
+   CMP CH,22
+   JNE ABAJO
+   JMP LECT
+   ABAJO:
+   INC CH
+   DEC CL
+   MOV AH,02H
+   MOV BH,00H
+   MOV DH,CH
+   MOV DL,CL
+   INT 10H
+   JMP LECT
+
+FLECHADE:
+   CMP CL,78
+   JNE DERECHA
+   JMP LECT
+   DERECHA:
+   ;INC CL
+   MOV AH,02H
+   MOV BH,00H
+   MOV DH,CH
+   MOV DL,CL
+   INT 10H
+   JMP LECT
+
+FLECHAI:
+   CMP CL,1
+   JNE IZQUIERDA
+   JMP LECT
+   IZQUIERDA:
+   DEC CL
+   DEC CL
+   MOV AH,02H
+   MOV BH,00H
+   MOV DH,CH
+   MOV DL,CL
+   INT 10H
+   JMP LECT
+
+
+FLECHA:
+   CMP CH,1
+   JNE ARRIBA
+   JMP LECT
+   ARRIBA:
+   DEC CL
+   DEC CH
+   MOV AH,02H
+   MOV BH,00H
+   MOV DH,CH
+   MOV DL,CL
+   INT 10H
+   JMP LECT
+
+SALTO:
+   CMP AL,13
+   JE SALT
+   RET
+   SALT:
+   MOV CL,78
+   CALL COLUMNA
+   DEC CL
+   RET
+
+FILA:
+   CMP CH,22
+   JE DATO
+   INC CH
+   RET
+   DATO:
+   RET
+
+COLUMNA:
+   CMP CL,78
+   JE CDATO
+   INC CL
+   RET
+   CDATO:
+   MOV CL,1
+   CALL FILA
+   RET
+             
+CUADRO:
+   MOV AX,0600H
+   MOV BH,07H
+   MOV CX,0000
+   MOV DX,184FH
+   INT 10H   ;LIMPIA PANTALLA
+   
+   MOV CL,79
+
+   LINEA1:
+   MOV DH,0
+   MOV DL,cl
+   MOV AH,02H
+   MOV BH,00
+   INT 10H
+   MOV AH,06H
+   MOV DL,205
+   INT 21H
+   LOOP LINEA1
+
+   MOV CL,23
+
+   COLUMNA1:
+   MOV DH,CL
+   MOV DL,0
+   MOV AH,02H
+   MOV BH,00
+   INT 10H
+   MOV AH,06H
+   MOV DL,186
+   INT 21H
+   LOOP COLUMNA1
+
+   MOV CL,23
+
+   COLUMNA2:
+   MOV DH,CL
+   MOV DL,79
+   MOV AH,02H
+   MOV BH,00
+   INT 10H
+   MOV AH,06H
+   MOV DL,186
+   INT 21H
+   LOOP COLUMNA2
+
+
+   MOV CL,79
+
+   LINEA2:
+   MOV DH,23
+   MOV DL,cl
+   MOV AH,02H
+   MOV BH,00
+   INT 10H
+   MOV AH,06H
+   MOV DL,205
+   INT 21H
+   LOOP LINEA2
+
+   MOV DH,0
+   MOV DL,0
+   MOV AH,02H
+   MOV BH,00
+   INT 10H
+   MOV AH,06H
+   MOV DL,201
+   INT 21H
+
+   MOV DH,0
+   MOV DL,79
+   MOV AH,02H
+   MOV BH,00
+   INT 10H
+   MOV AH,06H
+   MOV DL,187
+   INT 21H
+
+   MOV DH,23
+   MOV DL,0
+   MOV AH,02H
+   MOV BH,00
+   INT 10H
+   MOV AH,06H
+   MOV DL,200
+   INT 21H
+
+   MOV DH,23
+   MOV DL,79
+   MOV AH,02H
+   MOV BH,00
+   INT 10H
+   MOV AH,06H
+   MOV DL,188
+   INT 21H
+   RET
+
+NOMBRES:
+   MOV DH,9
+   MOV DL,20
+   MOV AH,02H
+   MOV BH,00
+   INT 10H
+   MOV DX, OFFSET TABLE5
+   MOV AH,9H
+   INT 21H
+
+   MOV DH,10
+   MOV DL,20
+   MOV AH,02H
+   MOV BH,00
+   INT 10H
+   MOV DX, OFFSET TABLE
+   MOV AH,9H
+   INT 21H
+
+   MOV DH,11
+   MOV DL,20
+   MOV AH,02H
+   MOV BH,00
+   INT 10H
+   MOV DX, OFFSET TABLE1
+   MOV AH,9H
+   INT 21H
+
+   MOV DH,12
+   MOV DL,20
+   MOV AH,02H
+   MOV BH,00
+   INT 10H
+   MOV DX, OFFSET TABLE2
+   MOV AH,9H
+   INT 21H
+
+   MOV DH,13
+   MOV DL,20
+   MOV AH,02H
+   MOV BH,00
+   INT 10H
+   MOV DX, OFFSET TABLE3
+   MOV AH,9H
+   INT 21H
+
+   MOV DH,14
+   MOV DL,20
+   MOV AH,02H
+   MOV BH,00
+   INT 10H
+   MOV DX, OFFSET TABLE4
+   MOV AH,9H
+   INT 21H
+
+   MOV AX,0000
+ MAIN:
+   MOV AH,06H
+   MOV DL,0FFH
+   INT 21H
+   CMP AL,13
+ JNE MAIN
+ RET   
+
+end
