@@ -16,5 +16,6 @@ If the link isn't availible plase message me at: JeremyZelaya@hotmail.es, Jeremy
 
 PS: For the final proyect, my group collaborated on a separate repo. Feel free to visit it here: https://github.com/Je12emy/Game-asm
 
-Good Luck!
+PS 2: If you need a tutor feel free to contact me @ Jeremy.Zelaya@uhispano.ac.cr or JeremyZelaya@hotmail.es
 
+Good Luck!
